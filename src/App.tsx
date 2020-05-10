@@ -1,5 +1,4 @@
-import React, { Fragment } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
 import { BrowserRouter, Route, Link } from 'react-router-dom';
 import { Main } from './Main'
@@ -14,24 +13,18 @@ function App() {
       <BrowserRouter>
         <nav>
         <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/contact">Contact</a></li>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/about">About</Link></li>
+          <li><Link to="/contact">Contact</Link></li>
         </ul>
         </nav>
         <div>
-          <Route exact path="/" component={Home}/>
-          <Route path="/about" component={Main}/>
+          <Route exact path="/" component={Main}/>
+          <Route path="/about" component={Intro}/>
         </div>
       </BrowserRouter>
     </div>
   );
 }
-
-const Home = () => (
-  <Fragment>
-    <h1>Home</h1>
-  </Fragment>
-  );
 
 export default App;
