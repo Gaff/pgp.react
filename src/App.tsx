@@ -7,8 +7,7 @@ import { Sidebar } from './Sidebar'
 
 function App() {
   return (
-    <div>
-      <BrowserRouter>
+      <div>
         <header className="navbar navbar-default navbar-fixed-top">
           <div className="container">
             <div className="navbar-header">
@@ -33,8 +32,7 @@ function App() {
             </p>
           </footer>
         </div>
-      </BrowserRouter>
-    </div>
+      </div>
   );
 }
 
