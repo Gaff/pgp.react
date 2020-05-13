@@ -20,7 +20,6 @@ test('Routing kinda works', () => {
   expect(linkElement).toBeInTheDocument();
 
   
-  
   fireEvent.click(linkElement)
   
   const aboutBlurb = getByText(/really simple/i);
