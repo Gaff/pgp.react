@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Form, Collapse, Button } from 'react-bootstrap';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import openpgp, { key, crypto, message, signature }  from 'openpgp'
+import openpgp, { key, message }  from 'openpgp'
 
 const selectAllText = (event: any) => {
     event.target.select();
