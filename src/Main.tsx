@@ -34,9 +34,9 @@ function KeyInfo(props: KeyInfo) {
             {
                 getKey.keys.map((pgpkey,i) => 
                     <div className="form-group row" key={i}>
-                        <label className="col-lg-2 control-label">Username</label>
+                        <label htmlFor="keyUsername" className="col-lg-2 control-label">Username</label>
                         <div className="col-lg-5 controls">
-                            <Form.Control type="text" readOnly value={getPrimaryUserCheaply(pgpkey)}/>
+                            <Form.Control id="keyUsername" type="text" readOnly value={getPrimaryUserCheaply(pgpkey)}/>
                         </div>
                         <label className="col-lg-2 control-label">Key ID</label>
                         <div className="col-lg-3 controls">
@@ -73,16 +73,18 @@ function KeyInfo(props: KeyInfo) {
                         )
                     }
                     <div className="form-group row">
-                        <label className="col-lg-2 control-label">Public Key</label>
+                        <label htmlFor="keyInput" className="col-lg-2 control-label">Public Key</label>
                         <div className="col-lg-10 controls">
-                            <Form.Control as="textarea" className="form-control" rows={4} spellCheck='false' placeholder="Paste PGP key here." 
+                            <Form.Control as="textarea" className="form-control" 
+                                id="keyInput"
+                                rows={4} spellCheck='false' placeholder="Paste PGP key here." 
                                 isInvalid={getKey.err != null}
                                 onBlur={selectAllText}
                                 onFocus={selectAllText} 
                                 onChange={e=>onKeyChange(e.target.value)}
                             />
                         {getKey.err && getKey.err.map((e,i) =>
-                            <div className="invalid-feedback" role="alert" key={i}>
+                            <div aria-label="keyInputError" className="invalid-feedback" role="alert" key={i}>
                                 <strong>Error:</strong> {e.message}
                             </div>
                         )}
@@ -99,12 +101,15 @@ function KeyInfo(props: KeyInfo) {
 
 export function Main(props : any) {
     const emptyKey = {'err':null, 'keys':[]}
+    
+    const [getInput, setInput] = React.useState("");
     const [getMessage, setMessage] = React.useState("");
     const [getKey, setKey] = React.useState<key.KeyResult>(emptyKey);
     
     
     const onMessageChangeDebounced = AwesomeDebouncePromise(e=>e, 500);
     const onMessageChange = async (text: string) => {
+        setInput(text)
         const result = await onMessageChangeDebounced(text);
         if (result === "") {
             setMessage("")
@@ -125,7 +130,8 @@ export function Main(props : any) {
             setKey(emptyKey);
         } else {
             const mykey = await key.readArmored(keyText);
-            setKey(mykey)
+            setKey(mykey);
+            onMessageChange(getMessage);
         }            
     }
     
@@ -135,15 +141,18 @@ export function Main(props : any) {
             <KeyInfo keyResult={getKey} onChange={onKeyChange}/>
             <hr/>
             <div className="form-group row">
-                <label className="col-lg-2 control-label">Message</label>
+                <label htmlFor="messageInput" className="col-lg-2 control-label">Message</label>
                 <div className="col-lg-10 controls">
-                    <Form.Control as="textarea" className="form-control" rows={8} placeholder="Type your message here" onChange={e=>onMessageChange(e.target.value)}/>
+                    <Form.Control id="messageInput" as="textarea" className="form-control" rows={8} placeholder="Type your message here" 
+                        onChange={e=>onMessageChange(e.target.value)}
+                        value={getInput}
+                    />
                 </div>
             </div>
             <div className="form-group row"> 
-                <label className="col-lg-2 control-label">Result</label>
+                <label htmlFor="messageOutput" className="col-lg-2 control-label">Result</label>
                 <div className="col-lg-10 controls">
-                    <Form.Control as="textarea" className="form-control autoselectall" rows={8} readOnly spellCheck='false' 
+                    <Form.Control id="messageOutput" as="textarea" className="form-control autoselectall" rows={8} readOnly spellCheck='false' 
                         placeholder="Encrypted text will appear here"
                         onFocus={selectAllText}
                         onBlur={selectAllText}
