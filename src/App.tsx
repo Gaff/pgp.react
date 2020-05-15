@@ -1,13 +1,13 @@
 import React from 'react';
 import './App.css';
-import { BrowserRouter, Route, Link } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import { Main } from './Main'
 import { Intro } from './Intro'
+import { Sidebar } from './Sidebar'
 
 function App() {
   return (
-    <div>
-      <BrowserRouter>
+      <div>
         <header className="navbar navbar-default navbar-fixed-top">
           <div className="container">
             <div className="navbar-header">
@@ -18,13 +18,7 @@ function App() {
         <div className="container">
           <div className="row">
             <div className="col-lg-3 order-2">
-              <nav>
-                <ul>
-                  <li><Link to="/">Home</Link></li>
-                  <li><Link to="/about">About</Link></li>
-                  <li><Link to="/contact">Contact</Link></li>
-                </ul>
-              </nav>
+              <Sidebar/>
             </div>
             <div className="col-lg-9 order-1 active">
               <Route exact path="/" component={Main}/>
@@ -38,8 +32,7 @@ function App() {
             </p>
           </footer>
         </div>
-      </BrowserRouter>
-    </div>
+      </div>
   );
 }
 
