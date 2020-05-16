@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import { Form, Collapse, Button } from 'react-bootstrap';
-import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import openpgp, { key, message }  from 'openpgp'
 
 const selectAllText = (event: any) => {
@@ -98,6 +97,23 @@ function KeyInfo(props: KeyInfo) {
     )
 }
 
+//https://stackoverflow.com/a/61140811/5209935
+function useDebouncedValue<T>(input: T, time = 500) {
+  const [debouncedValue, setDebouncedValue] = React.useState(input);
+
+  // every time input value has changed - set interval before it's actually commited
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedValue(input);
+    }, time);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [input, time]);
+
+  return debouncedValue;
+}
 
 export function Main(props : any) {
     const emptyKey = {'err':null, 'keys':[]}
@@ -106,23 +122,36 @@ export function Main(props : any) {
     const [getMessage, setMessage] = React.useState("");
     const [getKey, setKey] = React.useState<key.KeyResult>(emptyKey);
     
+    const debouncedInput = useDebouncedValue(getInput, 500)
     
-    const onMessageChangeDebounced = AwesomeDebouncePromise(e=>e, 500);
-    const onMessageChange = async (text: string) => {
-        setInput(text)
-        const result = await onMessageChangeDebounced(text);
-        if (result === "") {
+    /*
+    React.useEffect(()=>{
+        //https://medium.com/javascript-in-plain-english/how-to-use-async-function-in-react-hook-useeffect-typescript-js-6204a788a435
+        (async function blah(){ await doPgpWork(debouncedInput);})();
+    }, [debouncedInput])*/
+    
+    React.useEffect(()=>{
+       doPgpWork(getInput) 
+    },[getInput])
+    
+    
+    const doPgpWork = async (text: string) => {
+        if (text === "") {
             setMessage("")
             return
         }
         if (getKey.keys.length === 0) return;
-        const data = await openpgp.encrypt({
-            message: message.fromText(result),
-            publicKeys: getKey.keys[0]
-        })
-        
-        setMessage(data.data)
-        
+        const publicKey = getKey.keys[0];
+        try {
+            const data = await openpgp.encrypt({
+                message: message.fromText(text),
+                publicKeys: publicKey
+            })
+            setMessage(data.data);
+        } catch (err) {
+            console.log(publicKey);
+            throw(err)
+        }
     }
     
     const onKeyChange = async (keyText: string)=>{
@@ -131,7 +160,7 @@ export function Main(props : any) {
         } else {
             const mykey = await key.readArmored(keyText);
             setKey(mykey);
-            onMessageChange(getMessage);
+            setInput(getInput);
         }            
     }
     
@@ -144,7 +173,7 @@ export function Main(props : any) {
                 <label htmlFor="messageInput" className="col-lg-2 control-label">Message</label>
                 <div className="col-lg-10 controls">
                     <Form.Control id="messageInput" as="textarea" className="form-control" rows={8} placeholder="Type your message here" 
-                        onChange={e=>onMessageChange(e.target.value)}
+                        onChange={e=>setInput(e.target.value)}
                         value={getInput}
                     />
                 </div>
