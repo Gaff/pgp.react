@@ -34,12 +34,12 @@ function KeyInfo(props: KeyInfo) {
             {
                 getKey.keys.map((pgpkey,i) => 
                     <div className="form-group row" key={i}>
-                        <label htmlFor="keyUsername" className="col-lg-2 control-label">Username</label>
-                        <div className="col-lg-5 controls">
+                        <label htmlFor="keyUsername" className="col-sm-2 control-label">Username</label>
+                        <div className="col-sm-5 controls">
                             <Form.Control id="keyUsername" type="text" readOnly value={getPrimaryUserCheaply(pgpkey)}/>
                         </div>
-                        <label className="col-lg-2 control-label">Key ID</label>
-                        <div className="col-lg-3 controls">
+                        <label className="col-sm-2 control-label">Key ID</label>
+                        <div className="col-sm-3 controls">
                             <Form.Control type="text" readOnly value={
                                 //The typescript definition seems to be missing a type for this!
                                 (pgpkey.getKeyId() as any).toHex()
@@ -47,7 +47,7 @@ function KeyInfo(props: KeyInfo) {
                         </div>
                         {
                             getKey.keys.length !== 0 &&
-                                <Button className="col-lg-10 col-lg-offset-2" variant='link' onClick={()=>setShowKeyDetails(!showKeyDetails)}>
+                                <Button className="col-sm-10 col-sm-offset-2" variant='link' onClick={()=>setShowKeyDetails(!showKeyDetails)}>
                                 {showKeyDetails ? 'Hide' : 'Show'} key details
                                     <span className="pull-left">
                                         <i className="glyphicon glyphicon-chevron-down"/>
@@ -63,16 +63,16 @@ function KeyInfo(props: KeyInfo) {
                     {
                         getKey.keys.map((pgpkey,i) => 
                             <div className="form-group row" key={i}>
-                                <label className="col-lg-2 control-label">Fingerprint</label>
-                                <div className="col-lg-10 controls">
+                                <label className="col-sm-2 control-label">Fingerprint</label>
+                                <div className="col-sm-10 controls">
                                     <Form.Control type="text" readOnly value={pgpkey.getFingerprint()}/>
                                 </div>
                             </div>
                         )
                     }
                     <div className="form-group row">
-                        <label htmlFor="keyInput" className="col-lg-2 control-label">Public Key</label>
-                        <div className="col-lg-10 controls">
+                        <label htmlFor="keyInput" className="col-sm-2 control-label">Public Key</label>
+                        <div className="col-sm-10 controls">
                             <Form.Control as="textarea" className="form-control" 
                                 id="keyInput"
                                 rows={4} spellCheck='false' placeholder="Paste PGP key here." 
@@ -121,7 +121,6 @@ export function Main(props : any) {
     
     const [getInput, setInput] = React.useState("");
     const [getMessage, setMessage] = React.useState<WorkResult>(emptyWork);
-    //const [getMessage, setMessage] = React.useState('');
     const [getKey, setKey] = React.useState<key.KeyResult>(emptyKey);
     
     
@@ -156,8 +155,8 @@ export function Main(props : any) {
             <KeyInfo keyResult={getKey} onChange={onKeyChange}/>
             <hr/>
             <div className="form-group row">
-                <label htmlFor="messageInput" className="col-lg-2 control-label">Message</label>
-                <div className="col-lg-10 controls">
+                <label htmlFor="messageInput" className="col-sm-2 control-label">Message</label>
+                <div className="col-sm-10 controls">
                     <Form.Control id="messageInput" as="textarea" className="form-control" rows={8} placeholder="Type your message here" 
                         onChange={e=>setInput(e.target.value)}
                         value={getInput}
@@ -166,8 +165,8 @@ export function Main(props : any) {
                 </div>
             </div>
             <div className="form-group row"> 
-                <label htmlFor="messageOutput" className="col-lg-2 control-label">Result</label>
-                <div className="col-lg-10 controls">
+                <label htmlFor="messageOutput" className="col-sm-2 control-label">Result</label>
+                <div className="col-sm-10 controls">
                     {  
                         getMessage.err &&
                         getMessage.err.map((e,i) =>
