@@ -1,8 +1,11 @@
 import React from 'react';
 import {cleanup, fireEvent, render, screen, wait, getNodeText} from '@testing-library/react';
 import { Main } from './Main';
-import { normal_key } from './testData/testData'
+import { normal_key, key_no_encryption } from './testData/testData'
 
+test('Main no-op', async () => {
+  const { getByLabelText } = render(<Main/>);
+});
 
 test('Malformed Key Errors correctly', async () => {
   const { getByLabelText } = render(<Main/>);
@@ -57,5 +60,26 @@ test('Basic PGP Flow - message first', async () => {
   expect((getByLabelText(/Username/) as HTMLInputElement).value).toBe("Wibble <blah@silly.com>");
   
   expect(resultOuput).toHaveTextContent(/-----BEGIN PGP MESSAGE-----/)
+  
+});
+
+test('Basic PGP Flow - Bad key for encryption', async () => {
+  jest.useFakeTimers();
+  const { getByLabelText } = render(<Main/>);
+  
+  const keyInput = getByLabelText(/Public Key/i); 
+  const resultOuput = getByLabelText(/Result/i)
+  const messageInput = getByLabelText(/Message/i)
+  
+  //console.log(key_no_encryption)
+  fireEvent.change(keyInput, { target: { value: key_no_encryption } })
+  await wait() //opnpgp needs to do its thing...
+  expect((getByLabelText(/Username/) as HTMLInputElement).value).toBe("Test <test@test.com>");
+  
+  fireEvent.change(messageInput, { target: { value: 'Hello world!' } })
+  await wait(()=>jest.runAllTimers()); //Let the debounce happen
+  expect(resultOuput).toHaveTextContent("")
+  
+  expect(getByLabelText(/messageInputError/)).toHaveTextContent(/Could not find valid encryption key packet/)
   
 });

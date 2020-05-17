@@ -11,7 +11,7 @@ export async function parseKey(keyText: string) : Promise<key.KeyResult> {
     }            
 }
 
-interface WorkResult {
+export interface WorkResult {
     message: string;
     err?: Array<Error>;
 }
@@ -22,6 +22,7 @@ export async function doPgpWork(text: string, keys: key.KeyResult) : Promise<Wor
     }
     if (keys.keys.length === 0) return { message: ""};
     const publicKey = keys.keys[0];
+    publicKey.getKeyId()
     try {
         const data = await openpgp.encrypt({
             message: message.fromText(text),
@@ -29,7 +30,6 @@ export async function doPgpWork(text: string, keys: key.KeyResult) : Promise<Wor
         })
         return { message: data.data }
     } catch (err) {
-        console.log(publicKey);
         return {
             message: "",
             err: [err]

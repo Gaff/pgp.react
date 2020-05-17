@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Form, Collapse, Button } from 'react-bootstrap';
 import { key }  from 'openpgp'
-import { doPgpWork, parseKey } from './pgpwork'
+import { doPgpWork, parseKey, WorkResult } from './pgpwork'
 
 const selectAllText = (event: any) => {
     event.target.select();
@@ -45,21 +45,19 @@ function KeyInfo(props: KeyInfo) {
                                 (pgpkey.getKeyId() as any).toHex()
                             }/>
                         </div>
+                        {
+                            getKey.keys.length !== 0 &&
+                                <Button className="col-lg-10 col-lg-offset-2" variant='link' onClick={()=>setShowKeyDetails(!showKeyDetails)}>
+                                {showKeyDetails ? 'Hide' : 'Show'} key details
+                                    <span className="pull-left">
+                                        <i className="glyphicon glyphicon-chevron-down"/>
+                                    </span>
+                                </Button>
+                        } 
                     </div>
                 )
             }
 
-            {
-                getKey.keys.length !== 0 &&
-                <div className="form-group row">
-                    <Button className="col-lg-10 col-lg-offset-2" variant='link' onClick={()=>setShowKeyDetails(!showKeyDetails)}>
-                    {showKeyDetails ? 'Hide' : 'Show'} key details
-                        <span className="pull-left">
-                            <i className="glyphicon glyphicon-chevron-down"/>
-                        </span>
-                    </Button>
-                </div>
-            } 
             <Collapse in={shouldShowKeyDetails}>
                 <div>
                     {
@@ -116,33 +114,41 @@ function useDebouncedValue<T>(input: T, time = 500) {
   return debouncedValue;
 }
 
+const emptyWork = {message:''}
 export function Main(props : any) {
     const emptyKey = {'err':null, 'keys':[]}
     
+    
     const [getInput, setInput] = React.useState("");
-    const [getMessage, setMessage] = React.useState("");
+    const [getMessage, setMessage] = React.useState<WorkResult>(emptyWork);
+    //const [getMessage, setMessage] = React.useState('');
     const [getKey, setKey] = React.useState<key.KeyResult>(emptyKey);
     
     
     const onKeyChange = async (keyText: string)=>{
-        setKey(await parseKey(keyText));
+        //Chomp any blankspace at the start of each line. Not strictly kosher but solves a lot of issues when cutting and pasting.
+        const str = keyText.replace(/^[^\S\n]+/gm, ''); //NB: Double negative regex: not((not whitespace), newline)+
+        setKey(await parseKey(str));
     }
     
     const debouncedInput = useDebouncedValue(getInput, 500)
     React.useEffect(()=>{
         const myDoPgpWork = async (text: string) => {
             const result = await doPgpWork(text, getKey)
-            setMessage(result.message)
+            
+            if(result.message === "" && !result.err) {
+                //https://stackoverflow.com/questions/61850396
+                setMessage(emptyWork)
+            } else {
+                if(result.err) {
+                    console.log(result.err);
+                }
+                setMessage(result);
+            }
         }
         //https://medium.com/javascript-in-plain-english/how-to-use-async-function-in-react-hook-useeffect-typescript-js-6204a788a435
         (async function blah(){ await myDoPgpWork(debouncedInput);})();
     }, [debouncedInput, getKey])
-    
-    /*
-    React.useEffect(()=>{
-       doPgpWork(getInput) 
-    },[getInput])
-    */
     
     return (
         <Form className="form-horizontal">
@@ -155,17 +161,26 @@ export function Main(props : any) {
                     <Form.Control id="messageInput" as="textarea" className="form-control" rows={8} placeholder="Type your message here" 
                         onChange={e=>setInput(e.target.value)}
                         value={getInput}
+                        isInvalid={getMessage.err != null}
                     />
                 </div>
             </div>
             <div className="form-group row"> 
                 <label htmlFor="messageOutput" className="col-lg-2 control-label">Result</label>
                 <div className="col-lg-10 controls">
+                    {  
+                        getMessage.err &&
+                        getMessage.err.map((e,i) =>
+                            <div className="alert alert-danger" aria-label="messageInputError" key={i}>
+                                <strong>Error:</strong> {e.message}
+                            </div>
+                        )
+                    }
                     <Form.Control id="messageOutput" as="textarea" className="form-control autoselectall" rows={8} readOnly spellCheck='false' 
                         placeholder="Encrypted text will appear here"
                         onFocus={selectAllText}
                         onBlur={selectAllText}
-                        value={getMessage}
+                        value={getMessage.message}
                     />
                 </div>
             </div>
