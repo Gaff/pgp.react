@@ -19,4 +19,5 @@ test('Simple encryption', async() => {
       message: message.fromText("Hello world"),
       publicKeys: publicKey
   })
+  expect(data.data).toEqual(expect.stringMatching(/-----BEGIN PGP MESSAGE-----/))
 })
