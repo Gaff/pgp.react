@@ -45,18 +45,21 @@ function KeyInfo(props: KeyInfo) {
                                 (pgpkey.getKeyId() as any).toHex()
                             }/>
                         </div>
-                        {
-                            getKey.keys.length !== 0 &&
-                                <Button className="col-sm-10 col-sm-offset-2" variant='link' onClick={()=>setShowKeyDetails(!showKeyDetails)}>
-                                {showKeyDetails ? 'Hide' : 'Show'} key details
-                                    <span className="pull-left">
-                                        <i className="glyphicon glyphicon-chevron-down"/>
-                                    </span>
-                                </Button>
-                        } 
                     </div>
                 )
             }
+            
+            <div className="form-group">
+            {
+                getKey.keys.length !== 0 &&
+                    <Button className="col-sm-10 offset-sm-2 text-left" variant='link' onClick={()=>setShowKeyDetails(!showKeyDetails)}>
+                    {showKeyDetails ? 'Hide' : 'Show'} key details
+                        <span className="pull-left">
+                            <i className="glyphicon glyphicon-chevron-down"/>
+                        </span>
+                    </Button>
+            } 
+            </div>
 
             <Collapse in={shouldShowKeyDetails}>
                 <div>
