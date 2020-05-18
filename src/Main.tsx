@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Form, Collapse, Button } from 'react-bootstrap';
 import { key }  from 'openpgp'
-import { doPgpWork, parseKey, WorkResult } from './pgpwork'
+import { doPgpWork, parseKey, WorkResult, KeyResult, emptyKey } from './pgpwork'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
@@ -11,7 +11,7 @@ const selectAllText = (event: any) => {
 }
 
 interface KeyInfo {
-    keyResult: key.KeyResult;
+    keyResult: KeyResult;
     onChange: Function;
 }
 
@@ -83,6 +83,7 @@ function KeyInfo(props: KeyInfo) {
                                 onBlur={selectAllText}
                                 onFocus={selectAllText} 
                                 onChange={e=>onKeyChange(e.target.value)}
+                                value={getKey.armoredkey}
                             />
                         {getKey.err && getKey.err.map((e,i) =>
                             <div aria-label="keyInputError" className="invalid-feedback" role="alert" key={i}>
@@ -119,12 +120,9 @@ function useDebouncedValue<T>(input: T, time = 500) {
 
 const emptyWork = {message:''}
 export function Main(props : any) {
-    const emptyKey = {'err':null, 'keys':[]}
-    
-    
     const [getInput, setInput] = React.useState("");
     const [getMessage, setMessage] = React.useState<WorkResult>(emptyWork);
-    const [getKey, setKey] = React.useState<key.KeyResult>(emptyKey);
+    const [getKey, setKey] = React.useState<KeyResult>(emptyKey);
     
     
     const onKeyChange = async (keyText: string)=>{

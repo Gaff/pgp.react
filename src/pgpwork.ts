@@ -1,20 +1,43 @@
 import openpgp, { key, message }  from 'openpgp'
 
-
-const emptyKey : key.KeyResult = {'err':null, 'keys':[]}
-
-export async function parseKey(keyText: string) : Promise<key.KeyResult> {
-    if(keyText === "") {
-        return emptyKey;
-    } else {
-        return await key.readArmored(keyText);
-    }            
-}
-
 export interface WorkResult {
     message: string;
     err?: Array<Error>;
 }
+
+// We want to track the original armored key
+export interface KeyResult extends key.KeyResult {
+    armoredkey: string;
+}
+
+export const emptyKey : KeyResult = {'err':null, 'keys':[], armoredkey: ''}
+
+export async function parseKey(keyTextIn: string) : Promise<KeyResult> {
+    
+    if(keyTextIn === "") {
+        return emptyKey;
+    }
+    
+    //[\s\S] to workaround the fact that `.` will match newlines.
+    const armorFind = keyTextIn.match(/-----BEGIN[\s\S]*?END.*?-----/m);
+    
+    if(!armorFind) {
+        return {
+            keys: [],
+            err: [Error("Could not find armored text")],
+            armoredkey: keyTextIn
+        }
+    }
+    
+    //Remove leading and trailing spaces:
+    //NB: Double negative regex: not((not whitespace), newline)+
+    const keyText = armorFind[0].replace(/^[^\S\n]+/gm, '') 
+                                .replace(/[^\S\n]+$/gm, '');
+
+    const result = await key.readArmored(keyText);
+    return {...result, armoredkey: keyText}
+}
+
 
 export async function doPgpWork(text: string, keys: key.KeyResult) : Promise<WorkResult> {
     if (text === "") {
