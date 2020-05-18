@@ -15,11 +15,16 @@ test('Malformed Key Errors correctly', async () => {
   
   fireEvent.change(keyInput, { target: { value: 'abc' } })
   await wait() //opnpgp needs to do its thing...
-  
-  expect(keyInput.value).toBe('abc')
+  expect(keyInput.value).toMatch(/abc/)
   expect(keyInput).toHaveClass('is-invalid')
+  expect(getByLabelText(/keyInputError/)).toHaveTextContent(/Could not find armored text/)
   
-  expect(getByLabelText(/keyInputError/)).toHaveTextContent(/Misformed armored text/)
+  fireEvent.change(keyInput, { target: { value: '-----BEGIN PGP WIDGET-----\nabc\n-----END PGP WIDGET-----' } })
+  await wait() //opnpgp needs to do its thing...
+  
+  expect(keyInput.value).toMatch(/abc/)
+  expect(keyInput).toHaveClass('is-invalid')
+  expect(getByLabelText(/keyInputError/)).toHaveTextContent(/Unknown ASCII armor type/)
   
 });
 
