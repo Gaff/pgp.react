@@ -2,6 +2,8 @@ import React, { Fragment } from 'react';
 import { Form, Collapse, Button } from 'react-bootstrap';
 import { key }  from 'openpgp'
 import { doPgpWork, parseKey, WorkResult } from './pgpwork'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
 const selectAllText = (event: any) => {
     event.target.select();
@@ -53,10 +55,8 @@ function KeyInfo(props: KeyInfo) {
             {
                 getKey.keys.length !== 0 &&
                     <Button className="col-sm-10 offset-sm-2 text-left" variant='link' onClick={()=>setShowKeyDetails(!showKeyDetails)}>
-                    {showKeyDetails ? 'Hide' : 'Show'} key details
-                        <span className="pull-left">
-                            <i className="glyphicon glyphicon-chevron-down"/>
-                        </span>
+                        <FontAwesomeIcon className="d-inline-block align-center" icon={showKeyDetails ? faChevronUp : faChevronDown}/>
+                        {showKeyDetails ? 'Hide' : 'Show'} key details
                     </Button>
             } 
             </div>
