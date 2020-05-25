@@ -120,15 +120,17 @@ function useDebouncedValue<T>(input: T, time = 500) {
 
 const emptyWork = {message:''}
 export function Main(props : any) {
+    
     const [getInput, setInput] = React.useState("");
     const [getMessage, setMessage] = React.useState<WorkResult>(emptyWork);
-    const [getKey, setKey] = React.useState<KeyResult>(emptyKey);
+    //const [getKey, setKey] = React.useState<KeyResult>(emptyKey);
+    const getKey = props.getKey
+    const setKey = props.setKey
     
     
     const onKeyChange = async (keyText: string)=>{
-        //Chomp any blankspace at the start of each line. Not strictly kosher but solves a lot of issues when cutting and pasting.
-        const str = keyText.replace(/^[^\S\n]+/gm, ''); //NB: Double negative regex: not((not whitespace), newline)+
-        setKey(await parseKey(str));
+        //setKey(await parseKey(keyText));
+        setKey(keyText)
     }
     
     const debouncedInput = useDebouncedValue(getInput, 500)

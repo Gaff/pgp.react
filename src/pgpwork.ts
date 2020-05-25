@@ -29,12 +29,15 @@ export async function parseKey(keyTextIn: string) : Promise<KeyResult> {
         }
     }
     
+    //Chomp any blankspace at the start of each line. Not strictly kosher but solves a lot of issues when cutting and pasting.
     //Remove leading and trailing spaces:
     //NB: Double negative regex: not((not whitespace), newline)+
     const keyText = armorFind[0].replace(/^[^\S\n]+/gm, '') 
                                 .replace(/[^\S\n]+$/gm, '');
 
+    //Now get pgp to parse the key
     const result = await key.readArmored(keyText);
+    
     return {...result, armoredkey: keyText}
 }
 
