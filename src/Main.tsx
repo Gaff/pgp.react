@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Form, Collapse, Button } from 'react-bootstrap';
 import { key }  from 'openpgp'
-import { doPgpWork, parseKey, WorkResult, KeyResult, emptyKey } from './pgpwork'
+import { doPgpWork, WorkResult, KeyResult } from './pgpwork'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
@@ -123,15 +123,9 @@ export function Main(props : any) {
     
     const [getInput, setInput] = React.useState("");
     const [getMessage, setMessage] = React.useState<WorkResult>(emptyWork);
-    //const [getKey, setKey] = React.useState<KeyResult>(emptyKey);
     const getKey = props.getKey
     const setKey = props.setKey
     
-    
-    const onKeyChange = async (keyText: string)=>{
-        //setKey(await parseKey(keyText));
-        setKey(keyText)
-    }
     
     const debouncedInput = useDebouncedValue(getInput, 500)
     React.useEffect(()=>{
@@ -155,7 +149,7 @@ export function Main(props : any) {
     return (
         <Form className="form-horizontal">
             <Form.Label as="legend">Encrypt Message</Form.Label>
-            <KeyInfo keyResult={getKey} onChange={onKeyChange}/>
+            <KeyInfo keyResult={getKey} onChange={setKey}/>
             <hr/>
             <div className="form-group row">
                 <label htmlFor="messageInput" className="col-sm-2 control-label">Message</label>
