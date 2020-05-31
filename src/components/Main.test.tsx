@@ -3,6 +3,8 @@ import {cleanup, fireEvent, render, screen, wait, getNodeText} from '@testing-li
 import { Main } from './Main';
 import { normal_key, key_no_encryption } from '../testData/testData'
 import { KeyResult, emptyKey, parseKey } from '../pgpwork';
+import { KeyContainer } from './KeyContainer';
+import { MemoryRouter } from 'react-router-dom'
 
 test('Main no-op', async () => {
   const { getByLabelText } = render(<Main getKey={emptyKey}/>);
@@ -11,7 +13,7 @@ test('Main no-op', async () => {
 });
 
 test('Malformed Key Errors correctly', async () => {
-  const { getByLabelText } = render(<Main getKey={emptyKey}/>);
+  const { getByLabelText } = render(<KeyContainer/>, {wrapper: MemoryRouter});
   const keyInput = getByLabelText(/Public Key/i) as HTMLInputElement; 
   expect(keyInput).toBeInTheDocument();
   expect(keyInput).not.toHaveClass('is-invalid')
@@ -35,7 +37,7 @@ test('Malformed Key Errors correctly', async () => {
 
 test('Basic PGP Flow', async () => {
   jest.useFakeTimers();
-  const { getByLabelText } = render(<Main getKey={emptyKey}/>);
+  const { getByLabelText } = render(<KeyContainer/>, {wrapper: MemoryRouter});
   
   const keyInput = getByLabelText(/Public Key/i); 
   
@@ -55,7 +57,7 @@ test('Basic PGP Flow', async () => {
 
 test('Basic PGP Flow - message first', async () => {
   jest.useFakeTimers();
-  const { getByLabelText } = render(<Main getKey={emptyKey}/>);
+  const { getByLabelText } = render(<KeyContainer/>, {wrapper: MemoryRouter});
   
   const keyInput = getByLabelText(/Public Key/i); 
   const resultOuput = getByLabelText(/Result/i)
@@ -75,7 +77,7 @@ test('Basic PGP Flow - message first', async () => {
 
 test('Basic PGP Flow - Bad key for encryption', async () => {
   jest.useFakeTimers();
-  const { getByLabelText } = render(<Main getKey={emptyKey}/>);
+  const { getByLabelText } = render(<KeyContainer/>, {wrapper: MemoryRouter});
   
   const keyInput = getByLabelText(/Public Key/i); 
   const resultOuput = getByLabelText(/Result/i)
