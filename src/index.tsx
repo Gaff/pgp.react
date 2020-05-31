@@ -5,6 +5,7 @@ import 'bootswatch/dist/flatly/bootstrap.min.css';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import './polyfills.ts'
 
 ReactDOM.render(
   <React.StrictMode>

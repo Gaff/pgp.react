@@ -3,3 +3,8 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom/extend-expect';
+
+//Need this otherwise we won't get Array.flatmap() on Node 10.
+import 'core-js/stable';
+//This also works, not sure of the difference:
+//import 'react-app-polyfill/stable';
