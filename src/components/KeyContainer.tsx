@@ -12,7 +12,6 @@ export function KeyContainer() {
     const [ activeKey, setActiveKey ] = React.useState<KeyResult>(emptyKey);
     
     const setKey = async(newKey: string) => {
-        console.log('calling setKey')
         const parsedKey = await(parseKey(newKey));
         
         //If it's an error, set it as active but don't save.
