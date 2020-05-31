@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Form, Collapse, Button } from 'react-bootstrap';
 import { key }  from 'openpgp'
-import { doPgpWork, WorkResult, KeyResult } from './pgpwork'
+import { doPgpWork, WorkResult, KeyResult } from '../pgpwork'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
