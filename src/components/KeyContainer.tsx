@@ -6,11 +6,13 @@ import { Intro } from './Intro'
 import { Sidebar } from './Sidebar'
 import { KeyResult, emptyKey, parseKey } from '../pgpwork';
 import { ListGroup, Card } from 'react-bootstrap';
+import { useLocalStorage } from '../useLocalStorage'
 
 export function KeyContainer() {
-    const [ keyList, setKeyList ] = React.useState<Array<KeyResult>>([]);
+    const [ storedKeys, setStoredKeys ] = useLocalStorage('keys', []);
+    const [ keyList, setKeyList ] = React.useState<Array<KeyResult>>(storedKeys);
     const [ activeKey, setActiveKey ] = React.useState<KeyResult>(emptyKey);
-    
+
     const setKey = async(newKey: string) => {
         const parsedKey = await(parseKey(newKey));
         
@@ -36,6 +38,11 @@ export function KeyContainer() {
             newKeys.push(parsedKey)
         }
         setKeyList(newKeys)
+    }
+    
+    const storeKey = async(key: KeyResult, shouldStore: boolean) => {
+        const newKey = {...key, stored: shouldStore};
+        setActiveKey(newKey)
     }
     
     const activateKey = (key : any) => {
@@ -73,7 +80,7 @@ export function KeyContainer() {
                 </Card>
             </div>
             <div className="col-lg-9 order-1 active">
-              <Route exact path="/" render={(props)=><Main {...props} getKey={activeKey} setKey={setKey}/>}/>
+              <Route exact path="/" render={(props)=><Main {...props} keyResult={activeKey} onChange={setKey} storeKey={storeKey}/>}/>
               <Route path="/about" component={Intro}/>
             </div>
         </div>

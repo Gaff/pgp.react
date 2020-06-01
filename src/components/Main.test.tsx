@@ -1,13 +1,11 @@
 import React from 'react';
-import {cleanup, fireEvent, render, screen, wait, getNodeText} from '@testing-library/react';
-import { Main } from './Main';
+import { fireEvent, render, wait } from '@testing-library/react';
 import { normal_key, key_no_encryption } from '../testData/testData'
-import { KeyResult, emptyKey, parseKey } from '../pgpwork';
 import { KeyContainer } from './KeyContainer';
 import { MemoryRouter } from 'react-router-dom'
 
 test('Main no-op', async () => {
-  const { getByLabelText } = render(<Main getKey={emptyKey}/>);
+  const { getByLabelText } = render(<KeyContainer/>);
   
   
 });

@@ -8,9 +8,10 @@ export interface WorkResult {
 // We want to track the original armored key
 export interface KeyResult extends key.KeyResult {
     armoredkey: string;
+    stored: boolean;
 }
 
-export const emptyKey : KeyResult = {'err':null, 'keys':[], armoredkey: ''}
+export const emptyKey : KeyResult = {'err':null, 'keys':[], armoredkey: '', stored: false}
 
 export async function parseKey(keyTextIn: string) : Promise<KeyResult> {
     
@@ -25,7 +26,8 @@ export async function parseKey(keyTextIn: string) : Promise<KeyResult> {
         return {
             keys: [],
             err: [Error("Could not find armored text")],
-            armoredkey: keyTextIn
+            armoredkey: keyTextIn,
+            stored: false
         }
     }
     
@@ -38,7 +40,7 @@ export async function parseKey(keyTextIn: string) : Promise<KeyResult> {
     //Now get pgp to parse the key
     const result = await key.readArmored(keyText);
     
-    return {...result, armoredkey: keyText}
+    return {...result, armoredkey: keyText, stored: false}
 }
 
 

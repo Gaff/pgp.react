@@ -10,16 +10,18 @@ const selectAllText = (event: any) => {
     event.target.scrollTo(0,0);
 }
 
-interface KeyInfo {
+interface KeyManager {
     keyResult: KeyResult;
     onChange: Function;
+    storeKey: Function;
 }
 
 
-function KeyInfo(props: KeyInfo) {
+function KeyInfo(props: KeyManager) {
     
     const getKey = props.keyResult;
     const onKeyChange = props.onChange;
+    const storeKey = props.storeKey;
     
     const [showKeyDetails, setShowKeyDetails] = React.useState(false);
     
@@ -50,16 +52,28 @@ function KeyInfo(props: KeyInfo) {
                     </div>
                 )
             }
-            
-            <div className="form-group">
-            {
-                getKey.keys.length !== 0 &&
-                    <Button className="col-sm-10 offset-sm-2 text-left" variant='link' onClick={()=>setShowKeyDetails(!showKeyDetails)}>
+            {getKey.keys.length !== 0 &&
+            <Fragment>
+                <div className="form-group row">
+                    <label htmlFor="buttonCollapseDetails" className="col-sm-2 control-label"></label>
+                    <div className="col-sm-7 controls">
+                        <Form.Check
+                            type="switch"
+                            id="myswitch"
+                            label="Remember this key"
+                            checked={getKey.stored}
+                            onChange={(e:React.ChangeEvent<HTMLInputElement>)=>storeKey(getKey, e.target.checked)}
+                        />
+                    </div>
+                    <div className="col-sm-3 controls">
+                        <Button as="a" className="text-left href btn-link" variant='link' bsPrefix="xxx" id="buttonCollapseDetails" onClick={()=>setShowKeyDetails(!showKeyDetails)}>
                         <FontAwesomeIcon className="d-inline-block align-center" icon={showKeyDetails ? faChevronUp : faChevronDown}/>
                         {showKeyDetails ? 'Hide' : 'Show'} key details
-                    </Button>
-            } 
-            </div>
+                        </Button>
+                    </div>
+                </div>
+            </Fragment>
+            }
 
             <Collapse in={shouldShowKeyDetails}>
                 <div>
@@ -119,12 +133,11 @@ function useDebouncedValue<T>(input: T, time = 500) {
 }
 
 const emptyWork = {message:''}
-export function Main(props : any) {
+export function Main(props : KeyManager) {
     
     const [getInput, setInput] = React.useState("");
     const [getMessage, setMessage] = React.useState<WorkResult>(emptyWork);
-    const getKey = props.getKey
-    const setKey = props.setKey
+    const getKey = props.keyResult
     
     
     const debouncedInput = useDebouncedValue(getInput, 500)
@@ -149,7 +162,7 @@ export function Main(props : any) {
     return (
         <Form className="form-horizontal">
             <Form.Label as="legend">Encrypt Message</Form.Label>
-            <KeyInfo keyResult={getKey} onChange={setKey}/>
+            <KeyInfo {...props}/>
             <hr/>
             <div className="form-group row">
                 <label htmlFor="messageInput" className="col-sm-2 control-label">Message</label>
