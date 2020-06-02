@@ -1,13 +1,19 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, DOMAttributes } from 'react';
 import { Form, Collapse, Button } from 'react-bootstrap';
 import { key }  from 'openpgp'
 import { doPgpWork, WorkResult, KeyResult } from '../pgpwork'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
-const selectAllText = (event: any) => {
-    event.target.select();
-    event.target.scrollTo(0,0);
+const selectAllText = async (event: any) => {
+    const target = event.target;
+    //await target.select();
+    target.setSelectionRange(0, target.value.length);
+}
+
+const allSelection: Partial<DOMAttributes<HTMLElement>> = {
+    //onSelect : (e:any) => e.target.scrollTo(0,0), //Doesn't seem to work.
+    onClick : (e:any) => selectAllText(e)
 }
 
 interface KeyManager {
@@ -33,6 +39,14 @@ function KeyInfo(props: KeyManager) {
     
     const shouldShowKeyDetails = showKeyDetails || getKey.keys.length === 0;
     
+    const publicKey = () => {
+        const privKey = getKey.keys.find(el=>el.isPrivate());
+        if(!privKey) {
+            return getKey.armoredkey;
+        }
+        return privKey.toPublic().armor();
+    }
+    
     return (
         <Fragment>
             {
@@ -57,13 +71,17 @@ function KeyInfo(props: KeyManager) {
                 <div className="form-group row">
                     <label htmlFor="buttonCollapseDetails" className="col-sm-2 control-label"></label>
                     <div className="col-sm-7 controls">
-                        <Form.Check
-                            type="switch"
-                            id="myswitch"
-                            label="Remember this key"
-                            checked={getKey.stored}
-                            onChange={(e:React.ChangeEvent<HTMLInputElement>)=>storeKey(getKey, e.target.checked)}
-                        />
+                    {   
+                        //Bit of a dirty hack, but let's not show a save-load for the magic pgp.help key!
+                        getKey.keys[0].getFingerprint() !== "1dfa77312bac1781f699e78223fd9f3e9b067569" &&
+                            <Form.Check
+                                type="switch"
+                                id="myswitch"
+                                label="Remember this key"
+                                checked={getKey.stored}
+                                onChange={(e:React.ChangeEvent<HTMLInputElement>)=>storeKey(getKey, e.target.checked)}
+                            />
+                    }
                     </div>
                     <div className="col-sm-3 controls">
                         <Button as="a" className="text-left href btn-link" variant='link' bsPrefix="xxx" id="buttonCollapseDetails" onClick={()=>setShowKeyDetails(!showKeyDetails)}>
@@ -93,11 +111,10 @@ function KeyInfo(props: KeyManager) {
                             <Form.Control as="textarea" className="form-control" 
                                 id="keyInput"
                                 rows={4} spellCheck='false' placeholder="Paste PGP key here." 
+                                {...allSelection}
                                 isInvalid={getKey.err != null}
-                                onBlur={selectAllText}
-                                onFocus={selectAllText} 
                                 onChange={e=>onKeyChange(e.target.value)}
-                                value={getKey.armoredkey}
+                                value={publicKey()}
                             />
                         {getKey.err && getKey.err.map((e,i) =>
                             <div aria-label="keyInputError" className="invalid-feedback" role="alert" key={i}>
@@ -187,8 +204,7 @@ export function Main(props : KeyManager) {
                     }
                     <Form.Control id="messageOutput" as="textarea" className="form-control autoselectall" rows={8} readOnly spellCheck='false' 
                         placeholder="Encrypted text will appear here"
-                        onFocus={selectAllText}
-                        onBlur={selectAllText}
+                        {...allSelection}
                         value={getMessage.message}
                     />
                 </div>

@@ -5,7 +5,7 @@ import { KeyContainer } from './KeyContainer';
 import { MemoryRouter } from 'react-router-dom'
 
 test('Main no-op', async () => {
-  const { getByLabelText } = render(<KeyContainer/>);
+  const { getByLabelText } = render(<KeyContainer/>, {wrapper: MemoryRouter});
   
   
 });

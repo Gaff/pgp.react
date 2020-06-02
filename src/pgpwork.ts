@@ -13,6 +13,27 @@ export interface KeyResult extends key.KeyResult {
 
 export const emptyKey : KeyResult = {'err':null, 'keys':[], armoredkey: '', stored: false}
 
+function actualKeysAreEqual(left: key.Key, right: key.Key) : boolean {
+    if(left.getFingerprint() !== right.getFingerprint()) return false;
+    if(left.isPrivate() !== right.isPrivate()) return false;
+    //I'm not sure what the best way to do this is!
+    //Is there anything else we should consider?
+    return true;
+}
+
+export function keysAreEqual(left: key.KeyResult, right: key.KeyResult) : boolean {
+    if(left.err || right.err) return false;
+    if(left.keys.length !== right.keys.length) return false;
+    
+    for(var i = 0; i<left.keys.length; i++) {
+        if(!actualKeysAreEqual(left.keys[i], right.keys[i])) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 export async function parseKey(keyTextIn: string) : Promise<KeyResult> {
     
     if(keyTextIn === "") {

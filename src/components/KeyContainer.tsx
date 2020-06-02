@@ -4,13 +4,30 @@ import { Route } from 'react-router-dom';
 import { Main } from './Main'
 import { Intro } from './Intro'
 import { Sidebar } from './Sidebar'
-import { KeyResult, emptyKey, parseKey } from '../pgpwork';
+import { KeyResult, emptyKey, parseKey, keysAreEqual } from '../pgpwork';
 import { ListGroup, Card } from 'react-bootstrap';
 import { useLocalStorage } from '../useLocalStorage'
 
+function mergeKeyList(left : Array<KeyResult>, right : Array<KeyResult> ) : Array<KeyResult> {
+    const newArray : Array<KeyResult> = [...left, ...right];
+    
+    //Look for duplicates as defined via the keysAreEqual fn.
+    //This is O(n^2)
+    const ret = newArray.reduce((unique : Array<KeyResult>, item) =>
+        unique.findIndex(el=>keysAreEqual(el, item)) >= 0 ? unique : [...unique, item],
+        []
+    );
+    
+    return ret;
+}
+
+function defaultKeys() : Array<KeyResult> {
+    return [];
+}
+
 export function KeyContainer() {
     const [ storedKeys, setStoredKeys ] = useLocalStorage('keys', []);
-    const [ keyList, setKeyList ] = React.useState<Array<KeyResult>>(storedKeys);
+    const [ keyList, setKeyList ] = React.useState<Array<KeyResult>>(mergeKeyList(defaultKeys(), storedKeys));
     const [ activeKey, setActiveKey ] = React.useState<KeyResult>(emptyKey);
 
     const setKey = async(newKey: string) => {
@@ -29,14 +46,7 @@ export function KeyContainer() {
         } //else... we probably had this key already and could skip - but fall-through just to be certain:
         
         //Add to the list
-        const existing = keyList.findIndex(el=>el.armoredkey===parsedKey.armoredkey)
-        const newKeys = [...keyList];
-        if(existing >= 0) {
-            newKeys[existing] = parsedKey;
-            
-        } else {
-            newKeys.push(parsedKey)
-        }
+        const newKeys = mergeKeyList(keyList, [parsedKey])
         setKeyList(newKeys)
     }
     
@@ -56,7 +66,6 @@ export function KeyContainer() {
     }
     
     const activeFingerprint = activeKey.keys.length > 0 ? activeKey.keys[0].getFingerprint() : "";
-    
     
     
     return(
