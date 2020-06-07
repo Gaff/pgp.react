@@ -7,6 +7,7 @@ import { Sidebar } from './Sidebar'
 import { KeyResult, emptyKey, parseKey, keysAreEqual } from '../pgpwork';
 import { ListGroup, Card } from 'react-bootstrap';
 import { useLocalStorage } from '../useLocalStorage'
+import { pgphelp_key } from '../keydata'
 
 function mergeKeyList(left : Array<KeyResult>, right : Array<KeyResult> ) : Array<KeyResult> {
     const newArray : Array<KeyResult> = [...left, ...right];
@@ -21,14 +22,22 @@ function mergeKeyList(left : Array<KeyResult>, right : Array<KeyResult> ) : Arra
     return ret;
 }
 
-function defaultKeys() : Array<KeyResult> {
-    return [];
+async function defaultKeys() : Promise<Array<KeyResult>> {
+    return [ await parseKey(pgphelp_key) ];
 }
 
 export function KeyContainer() {
     const [ storedKeys, setStoredKeys ] = useLocalStorage('keys', []);
-    const [ keyList, setKeyList ] = React.useState<Array<KeyResult>>(mergeKeyList(defaultKeys(), storedKeys));
+    const [ keyList, setKeyList ] = React.useState<Array<KeyResult>>([]);
     const [ activeKey, setActiveKey ] = React.useState<KeyResult>(emptyKey);
+
+    React.useEffect(() => {
+        const setupInitialData = async() => {
+            const defaultKeysList = await defaultKeys();
+            setKeyList(mergeKeyList(keyList, defaultKeysList))
+        };
+        setupInitialData();
+    }, []); //[] is special magic to do this only on mount: https://www.robinwieruch.de/react-hooks-fetch-data
 
     const setKey = async(newKey: string) => {
         const parsedKey = await(parseKey(newKey));
