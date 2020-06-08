@@ -1,12 +1,21 @@
 import React from 'react';
-import { fireEvent, render, wait } from '@testing-library/react';
+import { fireEvent, render, wait, waitForElement } from '@testing-library/react';
 import { normal_key, key_no_encryption } from '../testData/testData'
 import { KeyContainer } from './KeyContainer';
 import { MemoryRouter } from 'react-router-dom'
 
 test('Main no-op', async () => {
   const { getByLabelText } = render(<KeyContainer/>, {wrapper: MemoryRouter});
+  await wait();
+});
+
+test('pgp.help key is loaded', async ()=>{
+  const { getByText, getByLabelText } = render(<KeyContainer/>, {wrapper: MemoryRouter});
+  //Make sure we can load the initial key
+  const pgpKeyIndex = await waitForElement(()=>getByText(/Pgp Help.*hello@pgp\.help/i));
+  fireEvent.click(pgpKeyIndex);
   
+  expect((getByLabelText(/Fingerprint/) as HTMLInputElement).value).toBe("1dfa77312bac1781f699e78223fd9f3e9b067569");
   
 });
 
@@ -91,5 +100,17 @@ test('Basic PGP Flow - Bad key for encryption', async () => {
   expect(resultOuput).toHaveTextContent("")
   
   expect(getByLabelText(/messageInputError/)).toHaveTextContent(/Could not find valid encryption key packet/)
+  
+});
+
+test('Key storage - save / remove', async()=>{
+  jest.useFakeTimers();
+  const { getByLabelText } = render(<KeyContainer/>, {wrapper: MemoryRouter});
+  
+  const keyInput = getByLabelText(/Public Key/i); 
+  
+  fireEvent.change(keyInput, { target: { value: normal_key } })
+  await wait() //opnpgp needs to do its thing...
+  expect((getByLabelText(/Username/) as HTMLInputElement).value).toBe("Wibble <blah@silly.com>");
   
 });

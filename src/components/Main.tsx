@@ -98,9 +98,9 @@ function KeyInfo(props: KeyManager) {
                     {
                         getKey.keys.map((pgpkey,i) => 
                             <div className="form-group row" key={i}>
-                                <label className="col-sm-2 control-label">Fingerprint</label>
+                                <label className="col-sm-2 control-label" htmlFor={"fingerprint"+i}>Fingerprint</label>
                                 <div className="col-sm-10 controls">
-                                    <Form.Control type="text" readOnly value={pgpkey.getFingerprint()}/>
+                                    <Form.Control id={"fingerprint"+i} type="text" readOnly value={pgpkey.getFingerprint()}/>
                                 </div>
                             </div>
                         )
